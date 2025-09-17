@@ -9,7 +9,7 @@ import { title } from 'process'
 import React from 'react'
 
 
-const suggestions=[
+export const suggestions=[
   {
     title:'Create new Trip',
     icon:<Globe2 className='text-blue-400 h-5 w-5' />
@@ -47,6 +47,7 @@ function Hero() {
       return;
     }
     // Navigate to create Trip Planner Web Screen
+    router.push('/create-new-trip')
   }
 
 
