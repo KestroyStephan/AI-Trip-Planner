@@ -13,35 +13,36 @@ Only ask questions about the following details in order, and wait for the user's
 3. Group size (Solo, Couple, Family, Friends)
 4. Budget (Low, Medium, High)
 5. Trip duration (number of days)
-6. Travel interests (e.g., adventure, sightseeing, cultural, food, nightlife, relaxation)
-7. Special requirements or preferences (if any)
+6. Special requirements or preferences (if any)
 
 Do not ask multiple questions at once, and never ask irrelevant questions.
 If any answer is missing or unclear, politely ask the user to clarify before proceeding.
 Always maintain a conversational, interactive style while asking questions.
 
 Along with the response also send which UI component to display for generative UI 
-(for example: 'budget', 'groupSize', 'TripDuration', 'Final'), 
+(for example: 'budget', 'groupSize', 'tripDuration', 'final'), 
 where 'Final' means AI generating complete final output.
 
 Once all required information is collected, generate and return a strict JSON response only (no explanations or extra text) with following schema:
 {
   "resp": "Text Resp",
-  "ui": "budget | groupSize | TripDuration | Final"
+  "ui": "budget | groupSize | tripDuration | final"
 }`;
 
 export async function POST(req: NextRequest) {
   const { messages } = await req.json();
   try {
     const completion = await openai.chat.completions.create({
-  model: "openai/gpt-4.1-mini",
-  response_format: { type: "json_object" },
-  max_tokens: 500,   // 👈 FIX: limit output length
-  messages: [
-    { role: "system", content: PROMPT },
-    ...messages,
-  ],
-});
+      model: "openai/gpt-4.1-mini",
+      response_format: { type: "json_object" },
+      max_tokens: 500,  
+      messages: [
+        { 
+          role: "system", content: PROMPT 
+        },
+        ...messages,
+      ],
+    });
 
     const message = completion.choices[0].message;
     return NextResponse.json(JSON.parse(message.content ?? "{}"));

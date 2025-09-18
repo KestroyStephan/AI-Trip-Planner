@@ -5,10 +5,15 @@ import axios from 'axios'
 import { Loader, Send } from 'lucide-react'
 import React, { useState } from 'react'
 import EmptyBoxState from './EmptyBoxState'
+import GroupSizeUi from './GroupSizeUi'
+import BudgetUi from './BudgetUi'
+import SelectDays from './SelectDays'
+import FinalUi from './FinalUi'
 
 type Messages={
     role:string,
-    content:string
+    content:string,
+    ui?:string,
 }
 
 function ChatBox() {
@@ -34,11 +39,35 @@ function ChatBox() {
 
         setmessages((prev:Messages[])=>[...prev,{
             role:'assistant',
-            content:result?.data?.resp
+            content:result?.data?.resp,
+            ui:result?.data?.ui
         }]);
         console.log(result.data);
         setLoading(false);
     }
+
+    const RenderGenerativeUi=(ui:string)=>{
+        if(ui=='budget')
+        {
+            //Budget UI Component
+             return <BudgetUi onSelectedOption={(v:string)=>{SetUserInput(v); onSend()}}/>
+        }else if(ui=='groupSize')
+        {
+            //Group Size UI Component
+            return <GroupSizeUi onSelectedOption={(v:string)=>{SetUserInput(v); onSend()}}/>
+        }else if (ui == 'tripDuration')
+        {
+            //Trip Duration UI component
+            return <SelectDays onSelectedOption={(v:string)=>{SetUserInput(v); onSend()}}/>
+        }else if (ui == 'final')
+        {
+            //final UI component
+            return <FinalUi viewTrip={() => console.log()} />
+        }
+        return null
+    }
+    
+
 
   return (
     <div className='h-[85vh] flex flex-col'>
@@ -58,6 +87,7 @@ function ChatBox() {
                     <div className='flex justify-start mt-2' key={index}>
                         <div className='max-w-lg bg-gray-100 text-black px-4 py-2 rounded-lg'>
                             { msg.content}
+                            {RenderGenerativeUi(msg.ui??'')}
                         </div>
                     </div>
             ))}
