@@ -31,6 +31,7 @@ function Provider({
         imageUrl:user?.imageUrl,
         name:user?.fullName ?? ''
     });
+    setUserDetails(result)
     }
     
   }
@@ -43,7 +44,7 @@ function Provider({
             
         </div>
     </UserDetailsContext.Provider>
-  )  
+  )
 }
 
 export default Provider
@@ -51,4 +52,3 @@ export default Provider
 export const useUserDetail=()=>{
   return useContext(UserDetailsContext);
 }
-  

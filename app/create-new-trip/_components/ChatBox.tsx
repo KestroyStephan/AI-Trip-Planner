@@ -70,12 +70,16 @@ function ChatBox() {
 
         if(isFinal)
         {
+            if (!userDetail) {
+                console.error("User detail not available. Cannot save trip.");
+                return;
+            }
             setTripDetail(result?.data?.trip_plan);
             const tripId = uuidv4();
             await SaveTripDetail({
                 tripDetail:result?.data?.trip_plan,
                 tripId: tripId,
-                uid: userDetail?._id 
+                uid: userDetail._id 
             });
         }
 

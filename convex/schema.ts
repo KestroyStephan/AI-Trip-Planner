@@ -2,14 +2,17 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  UserTable: defineTable({
-    name: v.string(),
-    email: v.string(),
-  }),
+    UserTable:defineTable({
+        name:v.string(),
+        imageUrl:v.string(),
+        email:v.string(),
+        subscription:v.optional (v.string()),
 
-  TripDetailTable: defineTable({
-    tripId: v.string(),                  // your UUID
-    uid: v.optional(v.id("UserTable")),  // make optional for now
-    tripDetail: v.optional(v.any()),     // 👈 optional so no error
-  }),
-});
+    }),
+
+    TripDetailTable:defineTable({
+        tripId:v.string(),
+        tripDetail:v.any(),
+        uid:v.id('UserTable')
+    })
+})
