@@ -1,54 +1,19 @@
-"use Client"
-import React, { useContext, useEffect, useState } from 'react'
-import Header from './_components/Header';
-import { useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { useUser } from '@clerk/nextjs';
-import { UserDetailsContext } from '@/context/UserDetailsContext';
+import { v } from "convex/values";
+import { mutation } from "./_generated/server";
 
-function Provider({
-    children,
-}: Readonly<{
-  children: React.ReactNode;
-}>){
+export const CreateTripDetail = mutation({
+    args:{
+        tripId: v.string(),
+        uid: v.id('UserTable'),
+        tripDetail: v.optional(v.any())
+    },
+    handler: async(ctx,args) => {
+        const result = await ctx.db.insert('TripDetailTable',{
+            tripDetail: args.tripDetail ?? {},
+            tripId: args.tripId,
+            uid: args.uid
+        });
 
-  const CreateUser=useMutation(api.user.CreateNewUser)
-  const [userDetail,setUserDetails]=useState<any>();
-
-  const {user}=useUser();
-
-  useEffect(()=>{
-    user&&CreateNewUser();
-  },[user])
-
-  const CreateNewUser=async()=>{
-    if(user)
-    {
-      // save new user if not Exist
-    const result=await CreateUser({
-
-        email:user?.primaryEmailAddress?.emailAddress ?? '',
-        imageUrl:user?.imageUrl,
-        name:user?.fullName ?? ''
-    });
-    setUserDetails(result)
+        
     }
-    
-  }
-    
-  return (
-    <UserDetailsContext.Provider value={{userDetail, setUserDetails}}>
-        <div>
-            <Header/>
-            {children}
-            
-        </div>
-    </UserDetailsContext.Provider>
-  )
-}
-
-export default Provider
-
-export const useUserDetail=()=>{
-  return useContext(UserDetailsContext);
-}
+})

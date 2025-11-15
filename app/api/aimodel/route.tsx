@@ -80,27 +80,54 @@ Output Schema:
   }
 }`
 
-
 export async function POST(req: NextRequest) {
   const { messages, isFinal } = await req.json();
+  
   try {
+    if (!messages || messages.length === 0) {
+      return NextResponse.json(
+        { error: "No messages provided" },
+        { status: 400 }
+      );
+    }
+
     const completion = await openai.chat.completions.create({
-      model: "x-ai/grok-4-fast:free",
+      model: "google/gemini-2.5-flash-lite",
       response_format: { type: "json_object" },
       max_tokens: 500,  
       messages: [
         { 
           role: "system", 
-          content: isFinal?FINAL_PROMPT:PROMPT 
+          content: isFinal ? FINAL_PROMPT : PROMPT 
         },
         ...messages,
       ],
     });
 
-    console. log(completion.choices[0].message);
     const message = completion.choices[0].message;
-    return NextResponse.json(JSON.parse(message.content ?? ''));
-  } catch (e) {
-    return NextResponse.json(e);
+    const parsedResponse = JSON.parse(message.content ?? '{}');
+    
+    return NextResponse.json(parsedResponse);
+  } catch (error) {
+    console.error("AI Model API Error:", error);
+    
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        { error: "Invalid JSON response from AI model" },
+        { status: 500 }
+      );
+    }
+    
+    if (error instanceof OpenAI.APIError) {
+      return NextResponse.json(
+        { error: `OpenAI API Error: ${error.message}` },
+        { status: error.status || 500 }
+      );
+    }
+    
+    return NextResponse.json(
+      { error: "Internal server error processing trip planning request" },
+      { status: 500 }
+    );
   }
-} 
+}
