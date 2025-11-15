@@ -7,7 +7,7 @@ const openai = new OpenAI({
 });
 
 const PROMPT = `You are an AI Trip Planner Agent. Your goal is to help the user plan a trip by asking one relevant trip-related question at a time.
-Only ask questions about the following details in order, and wait for the user's answer before asking the next:
+Only ask questions about the following details in order, and wait for the user\'s answer before asking the next:
 1. Starting location (source)
 2. Destination city or country
 3. Group size (Solo, Couple, Family, Friends)
@@ -20,8 +20,8 @@ If any answer is missing or unclear, politely ask the user to clarify before pro
 Always maintain a conversational, interactive style while asking questions.
 
 Along with the response also send which UI component to display for generative UI 
-(for example: 'budget', 'groupSize', 'tripDuration', 'final'), 
-where 'Final' means AI generating complete final output.
+(for example: \'budget\', \'groupSize\', \'tripDuration\', \'final\'), 
+where \'Final\' means AI generating complete final output.
 
 Once all required information is collected, generate and return a strict JSON response only (no explanations or extra text) with following schema:
 {
@@ -85,9 +85,9 @@ export async function POST(req: NextRequest) {
   const { messages, isFinal } = await req.json();
   try {
     const completion = await openai.chat.completions.create({
-      model: "x-ai/grok-4-fast:free",
+      model: "google/gemma-7b-it:free",
       response_format: { type: "json_object" },
-      max_tokens: 500,  
+      max_tokens: 4000,  
       messages: [
         { 
           role: "system", 
@@ -99,8 +99,17 @@ export async function POST(req: NextRequest) {
 
     console. log(completion.choices[0].message);
     const message = completion.choices[0].message;
-    return NextResponse.json(JSON.parse(message.content ?? ''));
+    try {
+        const jsonResponse = JSON.parse(message.content ?? \'\');
+        return NextResponse.json(jsonResponse);
+    } catch (e) {
+        console.error("Error parsing AI response:", e);
+        console.error("Original AI response:", message.content);
+        // Return the raw string if it\'s not valid JSON
+        return NextResponse.json({ resp: message.content ?? \'\' });
+    }
   } catch (e) {
-    return NextResponse.json(e);
+    console.error("Error calling OpenAI:", e);
+    return NextResponse.json({ error: "An error occurred while processing your request." }, { status: 500 });
   }
-} 
+}
