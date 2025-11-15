@@ -7,7 +7,7 @@ const openai = new OpenAI({
 });
 
 const PROMPT = `You are an AI Trip Planner Agent. Your goal is to help the user plan a trip by asking one relevant trip-related question at a time.
-Only ask questions about the following details in order, and wait for the user's answer before asking the next:
+Only ask questions about the following details in order, and wait for the user\'s answer before asking the next:
 1. Starting location (source)
 2. Destination city or country
 3. Group size (Solo, Couple, Family, Friends)
@@ -20,8 +20,8 @@ If any answer is missing or unclear, politely ask the user to clarify before pro
 Always maintain a conversational, interactive style while asking questions.
 
 Along with the response also send which UI component to display for generative UI 
-(for example: 'budget', 'groupSize', 'tripDuration', 'final'), 
-where 'Final' means AI generating complete final output.
+(for example: \'budget\', \'groupSize\', \'tripDuration\', \'final\'), 
+where \'Final\' means AI generating complete final output.
 
 Once all required information is collected, generate and return a strict JSON response only (no explanations or extra text) with following schema:
 {
@@ -92,9 +92,9 @@ export async function POST(req: NextRequest) {
     }
 
     const completion = await openai.chat.completions.create({
-      model: "google/gemini-2.5-flash-lite",
+      model: "x-ai/grok-4-fast:free",
       response_format: { type: "json_object" },
-      max_tokens: 500,  
+      max_tokens: 4000,  
       messages: [
         { 
           role: "system", 
@@ -105,29 +105,8 @@ export async function POST(req: NextRequest) {
     });
 
     const message = completion.choices[0].message;
-    const parsedResponse = JSON.parse(message.content ?? '{}');
-    
-    return NextResponse.json(parsedResponse);
-  } catch (error) {
-    console.error("AI Model API Error:", error);
-    
-    if (error instanceof SyntaxError) {
-      return NextResponse.json(
-        { error: "Invalid JSON response from AI model" },
-        { status: 500 }
-      );
-    }
-    
-    if (error instanceof OpenAI.APIError) {
-      return NextResponse.json(
-        { error: `OpenAI API Error: ${error.message}` },
-        { status: error.status || 500 }
-      );
-    }
-    
-    return NextResponse.json(
-      { error: "Internal server error processing trip planning request" },
-      { status: 500 }
-    );
+    return NextResponse.json(JSON.parse(message.content ?? ''));
+  } catch (e) {
+    return NextResponse.json(e);
   }
 }
