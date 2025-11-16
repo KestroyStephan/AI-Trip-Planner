@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     }
 
     const completion = await openai.chat.completions.create({
-      model: "x-ai/grok-4-fast:free",
+      model: "alibaba/tongyi-deepresearch-30b-a3b:free",
       response_format: { type: "json_object" },
       max_tokens: 4000,  
       messages: [
